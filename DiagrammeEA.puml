@@ -1,0 +1,84 @@
+@startuml DiagrammeEA
+
+entity Boutique
+{
+    id_boutique 
+    ==
+    nom
+    adresse
+}
+
+entity Client
+{
+    id_client
+    ==
+    nom
+    prenom
+    telephone
+    email
+    mdp
+    adresse
+    carte_credit
+    statut_fidelite
+}
+
+entity Commande
+{
+    id_commande
+    ==
+    statut
+    date_creation
+    Client
+    adresse_livraison
+    message
+    montant
+    date_livraison
+}
+
+entity Bouquet
+{
+    id_bouquet
+    ==
+    nom
+    prix
+    composition
+    categorie
+}
+
+entity Fleurs
+{
+    id_fleurs
+    ==
+    nom
+    prix
+    disponibilité
+}
+
+entity Accessoire
+{
+    id_accessoire
+    ==
+    nom
+    prix
+}
+
+entity Composition
+{
+    id_composition
+    ==
+    Fleurs
+
+}
+
+Boutique "0,N" --> "1,N" Client : possède
+Client "0,N" --> "1,N" Commande : effectue
+Boutique "0,N" --> "0,N" Commande : a reçu
+
+Commande "0,N" --> "0,N" Bouquet : contient
+Commande "0,N" --> "0,N" Accessoire : contient
+Commande "0,N" --> "0,N" Fleurs : contient
+
+Bouquet "0,N" --> "0,N" Fleurs : contient
+Bouquet "0,N" --> "0,N" Accessoire : contient
+
+@enduml
