@@ -271,7 +271,7 @@ public static class ConsoleVisuals
     /// <param name="choices"> The choices of the menu. </param>
     /// <param name="line"> The line where the menu is printed. </param>
     /// <returns> The choice of the user. </returns>
-    public static int ScrollingMenu(string question, string[] choices, int line = -1)
+    public static int ScrollingMenu(string question, string[] choices, Placement location = Placement.Center, int line = -1)
     {
         IsScreenUpdated();
         if (line == -1)
@@ -291,11 +291,11 @@ public static class ConsoleVisuals
                 if (i == currentPosition)
                 {
                     currentChoice[i] = $" ▶ {choices[i]}  ";
-                    WritePositionnedString(currentChoice[i], Placement.Center, true, line + 2 + i);
+                    WritePositionnedString(currentChoice[i], location, true, line + 2 + i);
                     continue;
                 }
                 currentChoice[i] = $"   {choices[i]}  ";
-                WritePositionnedString(currentChoice[i], Placement.Center, false, line + 2 + i);
+                WritePositionnedString(currentChoice[i], location, false, line + 2 + i);
             }
             switch (ReadKey(true).Key)
             {
