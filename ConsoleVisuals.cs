@@ -248,7 +248,7 @@ public static class ConsoleVisuals
     /// <param name="text"> The lines of the paragraph. </param>
     /// <param name="negative"> If true, the paragraph is printed in the negative colors. </param>
     /// <param name="line"> The height of the paragraph. </param>
-    public static void WriteParagraph(IEnumerable<string> text, bool negative = false, int line = -1)
+    public static void WriteParagraph(IEnumerable<string> text, bool negative = false, int line = -1, Placement placement = Placement.Center)
 	{
         IsScreenUpdated();
         if (line == -1)
@@ -259,7 +259,7 @@ public static class ConsoleVisuals
 		int maxLength = text.Count() > 0 ? text.Max(s => s.Length) : 0;
 		foreach (string str in text)
 		{
-			WritePositionnedString(str.BuildString(maxLength, Placement.Center), Placement.Center, negative, line++);
+			WritePositionnedString(str.BuildString(maxLength, Placement.Center), placement, negative, line++);
 			if (line >= WindowHeight - 1) 
                 break;
 		}
