@@ -1,7 +1,8 @@
 ﻿using MySql.Data.MySqlClient;
 using static System.Console;
-using static MDD_FlowerStore.ConsoleVisuals;
 using static System.ConsoleColor;
+
+using static MDD_FlowerStore.ConsoleVisuals;
 
 namespace MDD_FlowerStore;
 
@@ -9,11 +10,13 @@ public class Program
 {
     #region Champs
     public static MySqlConnection connection = new MySqlConnection("server=localhost;user id=mdd;password=mdd;database=PROJECT");
+    public static string idStaff = "BelleFleur";
     public static string mdpStaff = "securite";
     public static Move execution = Move.MainMenu;
     public static Profil user = Profil.NonDefini;
     public static string identifiant = "";
 
+    private static int positionDefaut = 0;
     #endregion
 
     #region Enum
@@ -41,7 +44,8 @@ public class Program
     {
         connection.Open();
         WriteFullScreen(true);
-        
+
+        #region MainMenu
         MainMenu:
 
         MainMenu();
@@ -58,10 +62,13 @@ public class Program
             default:
                 break;
         }
+        #endregion
+
         #region Client
 
         Commande:
 
+        #region Séléction Boutique
         int commandePrix = 0;
         string boutique;
         MySqlDataReader reader = Query("SELECT nom FROM Boutique;");
@@ -74,9 +81,11 @@ public class Program
             goto Commande;
         boutique = boutiques[numBoutique];
         numBoutique++;
+        #endregion
 
         Delai:
 
+        #region Séléction Date livraison
         DateTime dateLivraison = Convert.ToDateTime(WritePrompt("Veuillez saisir le délai de livraison souhaité : "));
         if (dateLivraison < DateTime.Now)
         {
@@ -84,9 +93,11 @@ public class Program
             ReadKey(true);
             goto Delai;
         }
-        
+        #endregion
+
         Bouquets:
 
+        #region Séléction Bouquet
         List<string> bouquetsNoms = new List<string>();
         reader = Query("SELECT nom FROM Bouquet");
         while (reader.Read())
@@ -120,9 +131,11 @@ public class Program
             default:
                 break;
         }
+        #endregion
 
         Fleurs:
 
+        #region Séléction Fleurs
         List<string> fleursNoms = new List<string>();
         reader = Query($"SELECT nom FROM Fleur WHERE id_Boutique = {numBoutique};");
         while (reader.Read())
@@ -142,8 +155,9 @@ public class Program
             int quantite = Convert.ToInt32(WritePrompt("Veuillez saisir la quantité de fleurs à commander : "));
             commandePrix += fleursPrix[numFleur] * quantite;
         } 
+        #endregion
 
-
+        #region Séléction Accessoires
         List<string> accessoiresNoms = new List<string>();
         reader = Query($"SELECT nom FROM Accessoire WHERE id_Boutique = {numBoutique};");
         while (reader.Read())
@@ -163,6 +177,9 @@ public class Program
             int quantite = Convert.ToInt32(WritePrompt("Veuillez saisir la quantité d'accessoires à commander : "));
             commandePrix += accessoiresPrix[numAccessoire] * quantite;
         }
+        #endregion
+
+        #region finalisation
         if (commandePrix > 0)
         {
             string message = WritePrompt("Veuillez saisir un message à joindre au bouquet : ");
@@ -200,6 +217,8 @@ public class Program
         goto MainMenu;
         #endregion
 
+        #endregion
+
         #region Staff
 
         Actions:
@@ -218,6 +237,61 @@ public class Program
 
         Statistiques:
 
+        #region Statistiques
+        ClearContent();
+        int pos = ScrollingMenu("Veuillez choisir quelle statistique consulter.", new string[] { "Prix moyen par commande", "Meilleur client", "Magasin le plus fréquenté", "Magasin le plus rentable", "Fleur la moins populaire", "Fleur la plus populaire", "Retour"}, Placement.Center, 9, false, 0, positionDefaut);
+        switch(pos)
+        {
+            case 0:
+                reader = Query("SELECT AVG(prix) FROM Commande;");
+                reader.Read();
+                WriteParagraph(new string[] { $" Prix moyen par commande : {reader.GetInt32(0)} €." }, true, CursorTop + 2);
+                reader.Close();
+                ReadKey(true);
+                break;
+            case 1:
+                reader = Query("SELECT nom, prenom, email FROM Client WHERE id = (SELECT id_Client FROM Commande GROUP BY id_Client ORDER BY SUM(prix) DESC LIMIT 1);");
+                reader.Read();
+                WriteParagraph(new string[] { $" Le meilleur client de nos boutiques est {reader.GetString(0)} {reader.GetString(1)} ({reader.GetString(2)})" }, true, CursorTop + 2);
+                reader.Close();
+                ReadKey(true);
+                break;
+            case 2:
+                reader = Query("SELECT nom FROM Boutique WHERE id = (SELECT id_Boutique FROM Commande GROUP BY id_Boutique ORDER BY COUNT(*) DESC LIMIT 1);");
+                reader.Read();
+                WriteParagraph(new string[] { $" Le magasin le plus fréquenté est {reader.GetString(0)}" }, true, CursorTop + 2);
+                reader.Close();
+                ReadKey(true);
+                break;
+            case 3:
+                reader = Query("SELECT nom FROM Boutique WHERE id = (SELECT id_Boutique FROM Commande GROUP BY id_Boutique ORDER BY SUM(prix) DESC LIMIT 1);");
+                reader.Read();
+                WriteParagraph(new string[] { $" Le magasin le plus rentable est {reader.GetString(0)}" }, true, CursorTop + 2);
+                reader.Close();
+                ReadKey(true);
+                break;
+            case 4:
+                reader = Query("SELECT nom FROM Fleur WHERE id = (SELECT id FROM Fleur GROUP BY id ORDER BY SUM(disponibilite) DESC LIMIT 1);");
+                reader.Read();
+                WriteParagraph(new string[] { $" La fleur la plus populaire est {reader.GetString(0)}" }, true, CursorTop + 2);
+                reader.Close();
+                ReadKey(true);
+                break;
+            case 5:
+                reader = Query("SELECT nom FROM Fleur WHERE id = (SELECT id FROM Fleur GROUP BY id ORDER BY SUM(disponibilite) ASC LIMIT 1);");
+                reader.Read();
+                WriteParagraph(new string[] { $" La fleur la moins populaire est {reader.GetString(0)}" }, true, CursorTop + 2);
+                reader.Close();
+                ReadKey(true);
+                break;
+            default:
+                positionDefaut = 0;
+                goto Actions;
+        }
+        positionDefaut = pos;
+        goto Statistiques;
+        #endregion
+
         Stocks:
 
         #region Choisir Boutique
@@ -229,11 +303,62 @@ public class Program
         reader.Close();
         int idBoutique = ScrollingMenu("Veuillez choisir la boutique dont vous souhaiter consulter le stock.", choixBoutique.ToArray());
         if (idBoutique == -1)
-            goto Stocks;
-        idBoutique++;
+            goto Actions;
         boutiqueChoisie = choixBoutique[idBoutique];
+        idBoutique++;
         #endregion
 
+        #region Afficher Stocks
+        reader = Query($"SELECT nom, disponibilite FROM Fleur WHERE id_Boutique = {idBoutique};");
+        SetCursorPosition(0, 9);
+        WriteParagraph(new string[] { $" Stocks de fleurs de la boutique {boutiqueChoisie} : " }, true, CursorTop, Placement.Left);
+        WriteLine("\n");
+        for (int i = 0; i < reader.FieldCount; i++)
+        {
+            Console.Write ($"{reader.GetName(i),-20}");
+        }
+        Console.WriteLine();
+        while (reader.Read())
+        {
+            ForegroundColor = ConsoleColor.Green;
+            string str = "";
+            str += $"{reader.GetString(0),-20}";
+            str += $"{reader.GetInt32(1),-20}";
+            if(reader.GetInt32(1) < 7)
+                ForegroundColor = ConsoleColor.Red;
+            Console.WriteLine(str);
+        }
+        ForegroundColor = ConsoleColor.White;
+        reader.Close();
+        Console.WriteLine();
+        WriteParagraph(new string[]{ $" Stocks d'accessoires : "}, true, CursorTop, Placement.Left);
+        WriteLine("\n");
+
+        reader = Query($"SELECT nom, disponibilite FROM Accessoire WHERE id_Boutique = {idBoutique};");
+        for (int i = 0; i < reader.FieldCount; i++)
+        {
+            Console.Write ($"{reader.GetName(i),-20}");
+        }
+        Console.WriteLine();
+        while (reader.Read())
+        {
+            ForegroundColor = ConsoleColor.Green;
+            string str = "";
+            str += $"{reader.GetString(0),-20}";
+            str += $"{reader.GetInt32(1),-20}";
+            if(reader.GetInt32(1) < 7)
+                ForegroundColor = ConsoleColor.Red;
+            Console.WriteLine(str);
+        }
+        ForegroundColor = ConsoleColor.White;
+        reader.Close();
+        WriteLine("\n");
+        WriteParagraph(new string[]{ " Appuyez sur une touche pour continuer. "}, true, CursorTop, Placement.Left);
+        ReadKey(true);
+        ClearContent();
+        goto Stocks;
+        #endregion
+        
         GestionCommandes:
 
         #region Afficher Table
@@ -255,6 +380,8 @@ public class Program
         }
         reader.Close();
         #endregion
+        
+        #region Séléctionner Commande
         WriteBanner((" Projet BDD", "Veuillez sélectionner la commande", "Réalisé par Yann et Sherylann "), true, true);
         ClearContent();
         int numCommande = ScrollingMenu(header, commandes.ToArray(), Placement.Center);
@@ -262,9 +389,11 @@ public class Program
         if (numCommande == -1)
             goto Actions;
         numCommande++;
+        #endregion
 
         ChangementChamp:
 
+        #region Afficher Commande
         ClearContent();
         Console.SetCursorPosition(0, 9);
         reader = Query($"SELECT statut, date_creation, date_livraison, message, prix FROM Commande WHERE id = {numCommande} ;");
@@ -286,6 +415,9 @@ public class Program
         }
         reader.Close();
         int posTemp = CursorTop ;
+        #endregion
+
+        #region Changer Champ
         switch(ScrollingMenu("Veuillez choisir le champ à modifier", new string[] { "Statut","Date de création", "Date de livraison","Message", "Prix", "Retour" }, Placement.Center, posTemp))
         {
             case 0:
@@ -322,6 +454,10 @@ public class Program
             ReadKey(true);
         goto ChangementChamp;
         #endregion
+        
+        #endregion
+
+        #region Utility
         Exit:
         connection.Close();
         ProgramExit();
@@ -343,12 +479,13 @@ public class Program
         Couleur:
         ChangeColor();
         goto Options;
+        #endregion
     }
     public static void MainMenu()
     {
         ClearContent();
         if (user is Profil.NonDefini)
-            switch (ScrollingMenu("Bienvenue dans l'interface utilisateur des boutiques de M.BelleFleur, veuillez choisir votre prochaine action.", new string[]{"Authentifier", "Options", "Quitter"}))
+            switch (ScrollingMenu("Bienvenue dans les boutiques de M.BelleFleur, veuillez vous identifier.", new string[]{"Authentifier", "Options", "Quitter"}))
             {
                 case 0:
                     user = Authentification();
@@ -367,7 +504,12 @@ public class Program
                     break;
             }
         else if (user is Profil.Client)
-            switch (ScrollingMenu("Bienvenue dans l'interface utilisateur des boutiques de M.BelleFleur, veuillez choisir votre prochaine action.", new string[]{"Commande", "Options", "Déconnexion"}))
+        {
+            MySqlDataReader reader = Query($"SELECT nom FROM Client WHERE email = '{identifiant}';");
+            reader.Read();
+            string name = reader.GetString(0);
+            reader.Close();
+            switch (ScrollingMenu($"Bienvenue dans votre espace personnel {name}.", new string[]{"Commande", "Options", "Déconnexion"}))
             {
                 case 0:
                     execution = Move.Commande;
@@ -383,8 +525,9 @@ public class Program
                 default:
                     break;
             }
+        }
         else if (user is Profil.Staff)
-            switch (ScrollingMenu("Bienvenue dans l'interface utilisateur des boutiques de M.BelleFleur, veuillez choisir votre prochaine action.", new string[]{"Gestion", "Options", "Déconnexion"}))
+            switch (ScrollingMenu("Bienvenue dans l'espace administrateur.", new string[]{"Gestion", "Options", "Déconnexion"}))
             {
                 case 0:
                     execution = Move.Actions;
@@ -530,15 +673,12 @@ public class Program
     {
         ClearContent();
         identifiant = WritePrompt("Veuillez saisir votre email ou identifiant : ");
-        if (identifiant == "BelleFleur")
+        if (identifiant == idStaff)
         {
             MdpGerant:
             string mdp1 = WritePrompt("Veuillez saisir le mot de passe pour s'authentifier : ");
             if (mdp1 == mdpStaff)
-            {
-                identifiant = "BelleFleur";
                 return Profil.Staff;
-            }  
             else
                 switch(ScrollingMenu("Mot de passe incorrect, réessayer ?", new string[] { "Oui", "Non" }))
                 {
@@ -595,30 +735,10 @@ public class Program
             }
         }
     }
-    
     public static MySqlDataReader Query(string query)
     {
         MySqlCommand command = new MySqlCommand(query, connection);
         return command.ExecuteReader();
     }
     #endregion
-    
-    
-    /*
-        MySqlDataReader reader1 = Query("SELECT testDate FROM Test;");
-        reader1.Read();
-        WriteLine(reader1.GetDateTime(0).ToString("MM"));
-         MySqlDataReader reader1 = Query("SELECT SUM(prix) FROM Commande WHERE id_Client = 1;");
-        
-
-        string query = "SELECT * FROM Boutique";
-        MySqlCommand command = new MySqlCommand(query, connection);
-
-        MySqlDataReader reader = command.ExecuteReader();
-        WriteLine($"{reader.GetName(0),-4} {reader.GetName(1),-10} {reader.GetName(2),10}");
-        while (reader.Read())
-        {
-            WriteLine($"{reader.GetInt32(0),-4} {reader.GetString(1),-10} {reader.GetString(2),10}");
-        }
-    */
 }

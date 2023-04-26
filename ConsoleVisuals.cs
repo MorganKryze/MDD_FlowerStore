@@ -20,7 +20,7 @@ public static class ConsoleVisuals
     #endregion
 
     #region Private properties
-    public static (string, string, string) defaultHeader = (" Projet BDD", "Exécution", "Réalisé par Yann et Sherylann ");
+    public static (string, string, string) defaultHeader = (" Projet BDD", "Exécution...", "Réalisé par Yann et Sherylann ");
     public static (string, string, string) defaultFooter = (" [ESC] Retour", "[Z|↑] Monter   [S|↓] Descendre", "[ENTRER] Sélectionner ");
     private static int TitleHeight => titleContent.Length;
     private static int HeaderHeigth => TitleHeight ;
@@ -271,18 +271,18 @@ public static class ConsoleVisuals
     /// <param name="choices"> The choices of the menu. </param>
     /// <param name="line"> The line where the menu is printed. </param>
     /// <returns> The choice of the user. </returns>
-    public static int ScrollingMenu(string question, string[] choices, Placement location = Placement.Center, int line = -1)
+    public static int ScrollingMenu(string question, string[] choices, Placement location = Placement.Center, int line = -1, bool clear = true, int delay = 1500, int posdefaut = 0)
     {
         IsScreenUpdated();
         if (line == -1)
             line = ContentHeigth;
 
-        int currentPosition = 0;
+        int currentPosition = posdefaut;
         int maxLength = choices.Count() > 0 ? choices.Max(s => s.Length) : 0;
         for (int i = 0; i < choices.Length; i++) 
             choices[i] = choices[i].PadRight(maxLength);
 
-        ContinuousPrint(question, line, default, 1500, 50);
+        ContinuousPrint(question, line, default, delay, 50);
         while (true)
         {
             string[] currentChoice = new string[choices.Length];
@@ -312,10 +312,12 @@ public static class ConsoleVisuals
                         currentPosition++; 
                         break;
                 case Enter: 
-                    ClearPanel(line, choices.Length + 2);
+                    if (clear)
+                        ClearPanel(line, choices.Length + 2);
                     return currentPosition;
-                case Escape: 
-                    ClearPanel(line, choices.Length + 2);
+                case Escape:
+                    if (clear) 
+                        ClearPanel(line, choices.Length + 2);
                     return -1;
             }
         }
