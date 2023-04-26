@@ -2,7 +2,7 @@
 
 entity Boutique
 {
-    id_boutique 
+    id 
     ==
     nom
     adresse
@@ -10,34 +10,31 @@ entity Boutique
 
 entity Client
 {
-    id_client
+    id
     ==
     nom
     prenom
+    adresse
     telephone
     email
     mdp
-    adresse
     carte_credit
-    statut_fidelite
 }
 
 entity Commande
 {
-    id_commande
+    id
     ==
     statut
     date_creation
-    Client
-    adresse_livraison
-    message
-    montant
     date_livraison
+    message
+    prix
 }
 
 entity Bouquet
 {
-    id_bouquet
+    id
     ==
     nom
     prix
@@ -45,40 +42,40 @@ entity Bouquet
     categorie
 }
 
-entity Fleurs
+entity Fleur
 {
-    id_fleurs
+    id
     ==
     nom
     prix
-    disponibilité
+    disponibilite
 }
 
 entity Accessoire
 {
-    id_accessoire
+    id
     ==
     nom
     prix
+    disponibilite
 }
 
 entity Composition
 {
-    id_composition
+    id
     ==
-    Fleurs
-
+    quantite
 }
 
-Boutique "0,N" --> "1,N" Client : possède
-Client "0,N" --> "1,N" Commande : effectue
-Boutique "0,N" --> "0,N" Commande : a reçu
+Client "0,N" --> "1,1" Commande : effectue
+Boutique "0,N" --> "1,1" Commande : a reçu
 
-Commande "0,N" --> "0,N" Bouquet : contient
-Commande "0,N" --> "0,N" Accessoire : contient
-Commande "0,N" --> "0,N" Fleurs : contient
+Fleur "1,1" --> "0,N" Boutique : a
+Accessoire "1,1" --> "0,N" Boutique : a
 
-Bouquet "0,N" --> "0,N" Fleurs : contient
-Bouquet "0,N" --> "0,N" Accessoire : contient
+Composition "1,1" --> "0,N" Fleur : contient
+Composition "1,1" --> "0,N" Accessoire : contient
+Composition "1,1" --> "0,N" Bouquet : du bouquet
+Composition "1,1" --> "0,N" Boutique : dans la boutique
 
 @enduml

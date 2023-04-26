@@ -6,16 +6,18 @@ using static MDD_FlowerStore.ConsoleVisuals;
 
 namespace MDD_FlowerStore;
 
-public class Program
+public static class Program
 {
     #region Champs
-    public static MySqlConnection connection = new MySqlConnection("server=localhost;user id=mdd;password=mdd;database=PROJECT");
+    public static MySqlConnection? connection;
     public static string idStaff = "BelleFleur";
-    public static string mdpStaff = "securite";
+    public static string mdpStaff = "staff";
     public static Move execution = Move.MainMenu;
     public static Profil user = Profil.NonDefini;
     public static string identifiant = "";
 
+    private static string BDDname = "mdd";
+    private static string BDDmdp = "mdd";
     private static int positionDefaut = 0;
     #endregion
 
@@ -42,7 +44,7 @@ public class Program
     #region Méthodes
     public static void Main(string[] args)
     {
-        connection.Open();
+        
         WriteFullScreen(true);
 
         #region MainMenu
@@ -459,7 +461,8 @@ public class Program
 
         #region Utility
         Exit:
-        connection.Close();
+        if (connection is not null)
+            connection.Close();
         ProgramExit();
 
         Options:
@@ -505,7 +508,7 @@ public class Program
             }
         else if (user is Profil.Client)
         {
-            MySqlDataReader reader = Query($"SELECT nom FROM Client WHERE email = '{identifiant}';");
+            MySqlDataReader reader = Query($"SELECT prenom FROM Client WHERE email = '{identifiant}';");
             reader.Read();
             string name = reader.GetString(0);
             reader.Close();
@@ -618,10 +621,16 @@ public class Program
             default:
                 switch(ScrollingMenu("veuillez choisir une option", new string[]{
                     "Changer de couleur",
+                    "Changer utilisateur BDD",
                     "Retour"}))
                 {
                     case 0:
                         execution = Move.Couleur;
+                        break;
+                    case 1:
+                        BDDname = WritePrompt("Veuillez saisir le nouveau nom d'utilisateur : ");
+                        BDDmdp = WritePrompt("Veuillez saisir le nouveau mot de passe : ");
+                        execution = Move.MainMenu;
                         break;
                     default:
                         execution = Move.MainMenu;
@@ -672,6 +681,11 @@ public class Program
     public static Profil Authentification()
     {
         ClearContent();
+        if (connection is null)
+        {
+            connection = new MySqlConnection($"server=localhost;user id={BDDname};password={BDDmdp};database=PROJECT");
+            connection.Open();
+        }
         identifiant = WritePrompt("Veuillez saisir votre email ou identifiant : ");
         if (identifiant == idStaff)
         {

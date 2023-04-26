@@ -206,8 +206,10 @@ public static class ConsoleVisuals
     /// <param name="footer"> The footer of the screen. </param>
     public static void WriteFullScreen(bool straight = false, (string, string, string)? header = null, (string, string, string)? footer = null)
     {
-        header ??= defaultHeader;
-        footer ??= defaultFooter;
+        if (header is null)
+            header = defaultHeader;
+        if (footer is null)
+            footer = defaultFooter;
         CursorVisible = false;
         WriteTitle();
         WriteBanner(header, true, straight);
