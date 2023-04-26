@@ -28,6 +28,7 @@ public class Program
         Continue,
         MainMenu,
         Commande,
+        Actions,
         Options,
         Couleur,
         Back,
@@ -50,12 +51,13 @@ public class Program
                 goto MainMenu;
             case Move.Options:
                 goto Options;
+            case Move.Actions:
+                goto Actions;
             case Move.Exit:
                 goto Exit;
             default:
                 break;
         }
-        
         #region Client
 
         Commande:
@@ -70,8 +72,8 @@ public class Program
         int numBoutique = ScrollingMenu("Veuillez choisir la boutique de livraison", boutiques.ToArray());
         if (numBoutique == -1)
             goto Commande;
-        numBoutique++;
         boutique = boutiques[numBoutique];
+        numBoutique++;
 
         Delai:
 
@@ -198,10 +200,128 @@ public class Program
         goto MainMenu;
         #endregion
 
-        #region Gerant
+        #region Staff
 
+        Actions:
+
+        switch(ScrollingMenu("Veuillez choisir une action", new string[] { "Statistiques", "État stocks","État commandes", "Retour" }))
+        {
+            case 0:
+                goto Statistiques;
+            case 1:
+                goto Stocks;
+            case 2:
+                goto GestionCommandes;
+            default:
+                goto MainMenu;
+        }
+
+        Statistiques:
+
+        Stocks:
+
+        #region Choisir Boutique
+        string boutiqueChoisie;
+        reader = Query("SELECT nom FROM Boutique;");
+        List<string> choixBoutique = new List<string>();
+        while (reader.Read())
+            choixBoutique.Add(reader.GetString(0));
+        reader.Close();
+        int idBoutique = ScrollingMenu("Veuillez choisir la boutique dont vous souhaiter consulter le stock.", choixBoutique.ToArray());
+        if (idBoutique == -1)
+            goto Stocks;
+        idBoutique++;
+        boutiqueChoisie = choixBoutique[idBoutique];
         #endregion
-        
+
+        GestionCommandes:
+
+        #region Afficher Table
+        reader = Query($"SELECT id, statut, date_creation, date_livraison, message, prix FROM Commande;");
+        List<string> commandes = new List<string>();
+        string header = "";
+        for (int i = 0; i < reader.FieldCount; i++)
+        {
+            header += $"{reader.GetName(i),-20}";
+        }
+        while (reader.Read())
+        {
+            string str = "";
+            for (int i = 0; i < reader.FieldCount; i++)
+            {
+                str += $" {reader.GetValue(i),-18} ";
+            }
+            commandes.Add(str);
+        }
+        reader.Close();
+        #endregion
+        WriteBanner((" Projet BDD", "Veuillez sélectionner la commande", "Réalisé par Yann et Sherylann "), true, true);
+        ClearContent();
+        int numCommande = ScrollingMenu(header, commandes.ToArray(), Placement.Center);
+        WriteBanner((" Projet BDD", "Exécution...", "Réalisé par Yann et Sherylann "), true, true);
+        if (numCommande == -1)
+            goto Actions;
+        numCommande++;
+
+        ChangementChamp:
+
+        ClearContent();
+        Console.SetCursorPosition(0, 9);
+        reader = Query($"SELECT statut, date_creation, date_livraison, message, prix FROM Commande WHERE id = {numCommande} ;");
+        string header2 = "";
+        for (int i = 0; i < reader.FieldCount; i++)
+        {
+            header2 += $"{reader.GetName(i),-20}";
+        }
+        Console.WriteLine(header2.BuildString(WindowWidth, Placement.Center));
+        Console.WriteLine("");
+        while (reader.Read())
+        {
+            string str = "";
+            for (int i = 0; i < reader.FieldCount; i++)
+            {
+                str += $" {reader.GetValue(i),-18} ";
+            }
+            Console.WriteLine(str.BuildString(WindowWidth, Placement.Center));
+        }
+        reader.Close();
+        int posTemp = CursorTop ;
+        switch(ScrollingMenu("Veuillez choisir le champ à modifier", new string[] { "Statut","Date de création", "Date de livraison","Message", "Prix", "Retour" }, Placement.Center, posTemp))
+        {
+            case 0:
+                string statut = ScrollingMenuString("Veuillez choisir le nouveau statut", new string[] { "CC", "CL", "VINV", "CPAV", "CAL", "Retour" }, Placement.Center, posTemp);
+                if (statut == "Retour")
+                    goto GestionCommandes;
+                reader = Query($"UPDATE Commande SET statut = '{statut}' WHERE id = {numCommande};");
+                reader.Close();
+                break;
+            case 1:
+                DateTime date_Creation = Convert.ToDateTime(WritePrompt("Veuillez entrer la nouvelle date de création (jj/mm/aaaa)", posTemp));
+                reader = Query($"UPDATE Commande SET date_creation = '{date_Creation.ToString("dd-MM-yyyy")}' WHERE id = {numCommande};");
+                reader.Close();
+                break;
+            case 2:
+                DateTime date_Livraison = Convert.ToDateTime(WritePrompt("Veuillez entrer la nouvelle date de livraison (jj/mm/aaaa)", posTemp));
+                reader = Query($"UPDATE Commande SET date_livraison = '{date_Livraison.ToString("dd-MM-yyyy")}' WHERE id = {numCommande};");
+                reader.Close();
+                break;
+            case 3:
+                string message = WritePrompt("Veuillez entrer le nouveau message", posTemp);
+                reader = Query($"UPDATE Commande SET message = '{message}' WHERE id = {numCommande};");
+                reader.Close();
+                break;
+            case 4:
+                int prix = int.Parse(WritePrompt("Veuillez entrer le nouveau prix", posTemp));
+                reader = Query($"UPDATE Commande SET prix = {prix} WHERE id = {numCommande};");
+                reader.Close();
+                break;
+            default:
+                goto GestionCommandes;
+        }
+        WriteParagraph(new string[] { " Changement effectué avec succès ! " }, true, posTemp);
+            ReadKey(true);
+        goto ChangementChamp;
+        #endregion
         Exit:
         connection.Close();
         ProgramExit();
@@ -226,6 +346,7 @@ public class Program
     }
     public static void MainMenu()
     {
+        ClearContent();
         if (user is Profil.NonDefini)
             switch (ScrollingMenu("Bienvenue dans l'interface utilisateur des boutiques de M.BelleFleur, veuillez choisir votre prochaine action.", new string[]{"Authentifier", "Options", "Quitter"}))
             {
@@ -266,7 +387,7 @@ public class Program
             switch (ScrollingMenu("Bienvenue dans l'interface utilisateur des boutiques de M.BelleFleur, veuillez choisir votre prochaine action.", new string[]{"Gestion", "Options", "Déconnexion"}))
             {
                 case 0:
-                    // ! execution = Move.Commande;
+                    execution = Move.Actions;
                     break;
                 case 1:
                     execution = Move.Options;
@@ -282,6 +403,7 @@ public class Program
     }
     public static void Options()
     {
+        ClearContent();
         switch(user)
         {
             case Profil.Client:
@@ -406,6 +528,7 @@ public class Program
     }
     public static Profil Authentification()
     {
+        ClearContent();
         identifiant = WritePrompt("Veuillez saisir votre email ou identifiant : ");
         if (identifiant == "BelleFleur")
         {

@@ -20,8 +20,8 @@ public static class ConsoleVisuals
     #endregion
 
     #region Private properties
-    private static (string, string, string) defaultHeader => ("gauche", "milieu", "droite");
-    private static (string, string, string) defaultFooter => ("gauche", "milieu", "droite");
+    public static (string, string, string) defaultHeader = (" Projet BDD", "Exécution", "Réalisé par Yann et Sherylann ");
+    public static (string, string, string) defaultFooter = (" [ESC] Retour", "[Z|↑] Monter   [S|↓] Descendre", "[ENTRER] Sélectionner ");
     private static int TitleHeight => titleContent.Length;
     private static int HeaderHeigth => TitleHeight ;
     private static int FooterHeigth => WindowHeight - 1;
@@ -317,6 +317,56 @@ public static class ConsoleVisuals
                 case Escape: 
                     ClearPanel(line, choices.Length + 2);
                     return -1;
+            }
+        }
+    }
+    public static string ScrollingMenuString(string question, string[] choices, Placement location = Placement.Center, int line = -1)
+    {
+        IsScreenUpdated();
+        if (line == -1)
+            line = ContentHeigth;
+        string[] propositions = new string[choices.Length];
+        Array.Copy(choices, propositions, choices.Length);
+        int currentPosition = 0;
+        int maxLength = propositions.Count() > 0 ? propositions.Max(s => s.Length) : 0;
+        for (int i = 0; i < propositions.Length; i++) 
+            propositions[i] = propositions[i].PadRight(maxLength);
+
+        ContinuousPrint(question, line, default, 1500, 50);
+        while (true)
+        {
+            string[] currentChoice = new string[propositions.Length];
+            for (int i = 0; i < propositions.Length; i++)
+            {
+                if (i == currentPosition)
+                {
+                    currentChoice[i] = $" ▶ {propositions[i]}  ";
+                    WritePositionnedString(currentChoice[i], location, true, line + 2 + i);
+                    continue;
+                }
+                currentChoice[i] = $"   {propositions[i]}  ";
+                WritePositionnedString(currentChoice[i], location, false, line + 2 + i);
+            }
+            switch (ReadKey(true).Key)
+            {
+                case UpArrow: case Z: 
+                    if (currentPosition == 0) 
+                        currentPosition = propositions.Length - 1; 
+                    else if (currentPosition > 0)
+                        currentPosition--; 
+                        break;
+                case DownArrow: case S: 
+                    if (currentPosition == propositions.Length - 1) 
+                        currentPosition = 0;  
+                    else if (currentPosition < propositions.Length - 1) 
+                        currentPosition++; 
+                        break;
+                case Enter: 
+                    ClearPanel(line, propositions.Length + 2);
+                    return choices[currentPosition];
+                case Escape: 
+                    ClearPanel(line, propositions.Length + 2);
+                    return "Retour";
             }
         }
     }
