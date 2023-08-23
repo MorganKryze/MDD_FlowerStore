@@ -1,0 +1,189 @@
+CREATE DATABASE PROJECT;
+Use PROJECT;
+DROP TABLE IF EXISTS Boutique;
+CREATE TABLE Boutique 
+(
+    id INT NOT NULL AUTO_INCREMENT,
+    nom VARCHAR(255) NOT NULL,
+    addresse VARCHAR(255) NOT NULL,
+    PRIMARY KEY (id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+DROP TABLE IF EXISTS Client;
+CREATE TABLE Client
+(
+    id INT NOT NULL AUTO_INCREMENT,
+    nom VARCHAR(255) NOT NULL,
+    prenom VARCHAR(255) NOT NULL,
+    adresse VARCHAR(255) NOT NULL,
+    telephone VARCHAR(255) NOT NULL,
+    email VARCHAR(255) NOT NULL,
+    mdp VARCHAR(255) NOT NULL,
+    carte_credit VARCHAR(255) NOT NULL,
+    PRIMARY KEY (id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+DROP TABLE IF EXISTS Commande;
+CREATE TABLE Commande 
+(
+    id INT NOT NULL AUTO_INCREMENT,
+    statut VARCHAR(255) NOT NULL,
+    date_creation VARCHAR(255) NOT NULL,
+    date_livraison VARCHAR(255) NOT NULL,
+    message VARCHAR(255) NOT NULL,
+    prix INT NOT NULL,
+    id_Boutique INT NOT NULL,
+    id_Client INT NOT NULL,
+    PRIMARY KEY (id),
+    FOREIGN KEY (id_Boutique) REFERENCES Boutique(id),
+    FOREIGN KEY (id_Client) REFERENCES Client(id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+DROP TABLE IF EXISTS Bouquet;
+CREATE TABLE Bouquet 
+(
+    id INT NOT NULL AUTO_INCREMENT,
+    nom VARCHAR(255) NOT NULL,
+    prix INT NOT NULL,
+    composition VARCHAR(255) NOT NULL,
+    categorie VARCHAR(255) NOT NULL,
+    PRIMARY KEY (id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+DROP TABLE IF EXISTS Fleur;
+CREATE TABLE Fleur
+(
+    id INT NOT NULL AUTO_INCREMENT,
+    nom VARCHAR(255) NOT NULL,
+    prix INT NOT NULL,
+    disponibilite INT NOT NULL,
+    id_Boutique INT NOT NULL,
+    PRIMARY KEY (id),
+    Foreign Key (id_Boutique) REFERENCES Boutique(id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+DROP TABLE IF EXISTS Accessoire;
+CREATE TABLE Accessoire 
+(
+    id INT NOT NULL AUTO_INCREMENT,
+    nom VARCHAR(255) NOT NULL,
+    prix INT NOT NULL,
+    disponibilite INT NOT NULL,
+    id_Boutique INT NOT NULL,
+    PRIMARY KEY (id),
+    FOREIGN KEY (id_Boutique) REFERENCES Boutique(id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+DROP TABLE IF EXISTS Composition;
+CREATE TABLE Composition
+(
+    id INT NOT NULL AUTO_INCREMENT,
+    id_Boutique INT NOT NULL,
+    id_Bouquet INT NOT NULL,
+    id_Fleur INT NOT NULL,
+    quantite INT NOT NULL,
+    PRIMARY KEY (id),
+    FOREIGN KEY (id_Boutique) REFERENCES Boutique(id),
+    FOREIGN KEY (id_Bouquet) REFERENCES Bouquet(id),
+    FOREIGN KEY (id_Fleur) REFERENCES Fleur(id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+INSERT INTO Boutique (nom, addresse) VALUES ('Au nom de la rose', '886 Ulices Crossing');
+INSERT INTO Boutique (nom, addresse) VALUES ('Beau Bouket', '8052 Marcelino Keys');
+INSERT INTO Boutique (nom, addresse) VALUES ('Fleurs à gogo', '1 Kuhlman Plaza');
+
+INSERT INTO Client (nom, prenom, adresse, telephone, email, mdp, carte_credit) VALUES ('Denesik', 'Larry', '256 America Extensions', '(453) 849-2809', 'elsie_blick47@gmail.com', 'PPGA5InNrq8WoXA', '3493-172309-93574');
+INSERT INTO Client (nom, prenom, adresse, telephone, email, mdp, carte_credit) VALUES ('Kihn', 'Laurie', '1 Kuhlman Plaza', '(385) 606-3693', 'alexzander_klein83@hotmail.com', 'RCAHK3zu5TXqT3c', '6011-6258-3804-0217-3029');
+INSERT INTO Client (nom, prenom, adresse, telephone, email, mdp, carte_credit) VALUES ('Dupont', 'Jean', '35 Rutherford Road', '(489) 506-3870', 'euna13@hotmail.com', '2kFojpfkFUTwqvW', '6759-2088-4788-9729');
+INSERT INTO Client (nom, prenom, adresse, telephone, email, mdp, carte_credit) VALUES ('Durand', 'Marie', '527 Willms Radial', '578-406-2371 767', 'joaquin96@yahoo.com', 'smAmNuj_kF3q_9S', '3774-094691-16891');
+INSERT INTO Client (nom, prenom, adresse, telephone, email, mdp, carte_credit) VALUES ('Martin', 'Pierre', '8052 Marcelino Keys', '1-767-578-406-2371', 'emiliano.rippin82@yahoo.com', '2kFojpfkFUTwqvW', '6011-6258-3804-0217-3029');
+INSERT INTO Client (nom, prenom, adresse, telephone, email, mdp, carte_credit) VALUES ('Bernard', 'Michel', '1 Kuhlman Plaza', '1-767-578-406-2371','kaia8@yahoo.com', 'LJ6BhiI2ta22XQz', '5176-1656-5272-0299' );
+INSERT INTO Client (nom, prenom, adresse, telephone, email, mdp, carte_credit) VALUES ('Towne', 'Shanny', '373 Coy Landing', '(756) 767-5530 821', 'chaz82@hotmail.com', 'v1l1RmNWJHtJVdv', '6767-8380-8545-5972-104');
+INSERT INTO Client (nom, prenom, adresse, telephone, email, mdp, carte_credit) VALUES ('First', 'Tester', 'adresse classique', 'exemple de numéro06', 'exemple@mail.com', 'exemple', '1234-5678-9012-3456');
+
+INSERT INTO Fleur (nom, prix, disponibilite, id_Boutique) VALUES ('Rose rouge', 5, 7, 1);
+INSERT INTO Fleur (nom, prix, disponibilite, id_Boutique) VALUES ('Rose rouge', 5, 9, 2);
+INSERT INTO Fleur (nom, prix, disponibilite, id_Boutique) VALUES ('Rose rouge', 5, 0, 3);
+INSERT INTO Fleur (nom, prix, disponibilite, id_Boutique) VALUES ('Rose blanche', 5, 5, 1);
+INSERT INTO Fleur (nom, prix, disponibilite, id_Boutique) VALUES ('Rose blanche', 5, 10, 2);
+INSERT INTO Fleur (nom, prix, disponibilite, id_Boutique) VALUES ('Rose blanche', 5, 2, 3);
+INSERT INTO Fleur (nom, prix, disponibilite, id_Boutique) VALUES ('Gerbera', 3, 7, 1);
+INSERT INTO Fleur (nom, prix, disponibilite, id_Boutique) VALUES ('Gerbera', 3, 12, 2);
+INSERT INTO Fleur (nom, prix, disponibilite, id_Boutique) VALUES ('Gerbera', 3, 6, 3);
+INSERT INTO Fleur (nom, prix, disponibilite, id_Boutique) VALUES ('Lys', 4, 4, 1);
+INSERT INTO Fleur (nom, prix, disponibilite, id_Boutique) VALUES ('Lys', 4, 8, 2);
+INSERT INTO Fleur (nom, prix, disponibilite, id_Boutique) VALUES ('Lys', 4, 3, 3);
+INSERT INTO Fleur (nom, prix, disponibilite, id_Boutique) VALUES ('Tulipe', 2, 7, 1);
+INSERT INTO Fleur (nom, prix, disponibilite, id_Boutique) VALUES ('Tulipe', 2, 5, 2);
+INSERT INTO Fleur (nom, prix, disponibilite, id_Boutique) VALUES ('Tulipe', 2, 8, 3);
+INSERT INTO Fleur (nom, prix, disponibilite, id_Boutique) VALUES ('Glaïeul', 6, 2, 1);
+INSERT INTO Fleur (nom, prix, disponibilite, id_Boutique) VALUES ('Glaïeul', 6, 8, 2);
+INSERT INTO Fleur (nom, prix, disponibilite, id_Boutique) VALUES ('Glaïeul', 6, 4, 3);
+INSERT INTO Fleur (nom, prix, disponibilite, id_Boutique) VALUES ('Marguerite', 8, 0, 1);
+INSERT INTO Fleur (nom, prix, disponibilite, id_Boutique) VALUES ('Marguerite', 8, 9, 2);
+INSERT INTO Fleur (nom, prix, disponibilite, id_Boutique) VALUES ('Marguerite', 8, 12, 3);
+INSERT INTO Fleur (nom, prix, disponibilite, id_Boutique) VALUES ('Genet', 7, 2, 1);
+INSERT INTO Fleur (nom, prix, disponibilite, id_Boutique) VALUES ('Genet', 7, 9, 2);
+INSERT INTO Fleur (nom, prix, disponibilite, id_Boutique) VALUES ('Genet', 7, 13, 3);
+
+INSERT INTO Bouquet (nom, prix, composition, categorie) VALUES ('Gros Merci', 45, 'Marguerites et verdure', 'Toute occasion');
+INSERT INTO Bouquet (nom, prix, composition, categorie) VALUES ('L’amoureux', 65, 'Roses blanches et roses rouges', 'St Valentin');
+INSERT INTO Bouquet (nom, prix, composition, categorie) VALUES ('L’Exotique', 40, 'Tulipes et genet', 'Toute occasion');
+INSERT INTO Bouquet (nom, prix, composition, categorie) VALUES ('Maman', 80, 'Gerbera et lys', 'Fête des mères');
+INSERT INTO Bouquet (nom, prix, composition, categorie) VALUES ('Vive la mariée', 120, 'Lys et glaïeul', 'Mariage');
+
+INSERT INTO Composition (id_Boutique, id_Bouquet, id_Fleur, quantite) VALUES (1, 1, 19, 5); -- 5 marguerites
+INSERT INTO Composition (id_Boutique, id_Bouquet, id_Fleur, quantite) VALUES (2, 1, 20, 5); -- 5 marguerites
+INSERT INTO Composition (id_Boutique, id_Bouquet, id_Fleur, quantite) VALUES (3, 1, 21, 5); -- 5 marguerites
+
+INSERT INTO Composition (id_Boutique, id_Bouquet, id_Fleur, quantite) VALUES (1, 2, 1, 5); -- 5 Roses rouge
+INSERT INTO Composition (id_Boutique, id_Bouquet, id_Fleur, quantite) VALUES (1, 2, 4, 8); -- 8 Roses blanches
+INSERT INTO Composition (id_Boutique, id_Bouquet, id_Fleur, quantite) VALUES (2, 2, 2, 5); -- 5 Roses rouge
+INSERT INTO Composition (id_Boutique, id_Bouquet, id_Fleur, quantite) VALUES (2, 2, 5, 8); -- 8 Roses blanches
+INSERT INTO Composition (id_Boutique, id_Bouquet, id_Fleur, quantite) VALUES (3, 2, 3, 5); -- 5 Roses rouge
+INSERT INTO Composition (id_Boutique, id_Bouquet, id_Fleur, quantite) VALUES (3, 2, 6, 8); -- 8 Roses blanches
+
+INSERT INTO Composition (id_Boutique, id_Bouquet, id_Fleur, quantite) VALUES (1, 3, 13, 13); -- 13 Tulipes
+INSERT INTO Composition (id_Boutique, id_Bouquet, id_Fleur, quantite) VALUES (1, 3, 22, 2); -- 2 Genets
+INSERT INTO Composition (id_Boutique, id_Bouquet, id_Fleur, quantite) VALUES (2, 3, 14, 13); -- 13 Tulipes
+INSERT INTO Composition (id_Boutique, id_Bouquet, id_Fleur, quantite) VALUES (2, 3, 23, 2); -- 2 Genets
+INSERT INTO Composition (id_Boutique, id_Bouquet, id_Fleur, quantite) VALUES (3, 3, 15, 13); -- 13 Tulipes
+INSERT INTO Composition (id_Boutique, id_Bouquet, id_Fleur, quantite) VALUES (3, 3, 24, 2); -- 2 Genets
+
+INSERT INTO Composition (id_Boutique, id_Bouquet, id_Fleur, quantite) VALUES (1, 4, 10, 10); -- 10 Lys
+INSERT INTO Composition (id_Boutique, id_Bouquet, id_Fleur, quantite) VALUES (1, 4, 7, 12); -- 12 Gerbera
+INSERT INTO Composition (id_Boutique, id_Bouquet, id_Fleur, quantite) VALUES (2, 4, 11, 10); -- 10 Lys
+INSERT INTO Composition (id_Boutique, id_Bouquet, id_Fleur, quantite) VALUES (2, 4, 8, 12); -- 12 Gerbera
+INSERT INTO Composition (id_Boutique, id_Bouquet, id_Fleur, quantite) VALUES (3, 4, 12, 10); -- 10 Lys
+INSERT INTO Composition (id_Boutique, id_Bouquet, id_Fleur, quantite) VALUES (3, 4, 9, 12); -- 12 Gerbera
+
+INSERT INTO Composition (id_Boutique, id_Bouquet, id_Fleur, quantite) VALUES (1, 5, 16, 15); -- 15 Glaïeul
+INSERT INTO Composition (id_Boutique, id_Bouquet, id_Fleur, quantite) VALUES (1, 5, 10, 7); -- 7 Lys
+INSERT INTO Composition (id_Boutique, id_Bouquet, id_Fleur, quantite) VALUES (2, 5, 17, 15); -- 15 Glaïeul
+INSERT INTO Composition (id_Boutique, id_Bouquet, id_Fleur, quantite) VALUES (2, 5, 11, 7); -- 7 Lys
+INSERT INTO Composition (id_Boutique, id_Bouquet, id_Fleur, quantite) VALUES (3, 5, 18, 15); -- 15 Glaïeul
+INSERT INTO Composition (id_Boutique, id_Bouquet, id_Fleur, quantite) VALUES (3, 5, 12, 7); -- 7 Lys
+
+INSERT INTO Accessoire (nom, prix, disponibilite, id_Boutique) VALUES ('Rubans', 10, 9, 1); -- 9 rubans
+INSERT INTO Accessoire (nom, prix, disponibilite, id_Boutique) VALUES ('Rubans', 10, 11, 2); -- 11 rubans
+INSERT INTO Accessoire (nom, prix, disponibilite, id_Boutique) VALUES ('Rubans', 10, 4, 3); -- 10 rubans
+INSERT INTO Accessoire (nom, prix, disponibilite, id_Boutique) VALUES ('Boîte', 5, 10, 1); -- 10 boîtes
+INSERT INTO Accessoire (nom, prix, disponibilite, id_Boutique) VALUES ('Boîte', 5, 12, 2); -- 12 boîtes
+INSERT INTO Accessoire (nom, prix, disponibilite, id_Boutique) VALUES ('Boîte', 5, 5, 3); -- 5 boîtes
+INSERT INTO Accessoire (nom, prix, disponibilite, id_Boutique) VALUES ('Vase', 12, 13, 1); -- 13 vases
+INSERT INTO Accessoire (nom, prix, disponibilite, id_Boutique) VALUES ('Vase', 12, 15, 2); -- 15 vases
+INSERT INTO Accessoire (nom, prix, disponibilite, id_Boutique) VALUES ('Vase', 12, 8, 3); -- 8 vases
+
+INSERT INTO Commande (statut, date_creation, date_livraison, message, prix, id_Boutique, id_Client) VALUES ('CAL', '22-02-2023', '05-03-2023', 'Cadeau pour Maman', 40, 1, 1);
+INSERT INTO Commande (statut, date_creation, date_livraison, message, prix, id_Boutique, id_Client) VALUES ('CL', '25-02-2023', '05-04-2023', 'Bonne fête !', 50, 1, 2);
+INSERT INTO Commande (statut, date_creation, date_livraison, message, prix, id_Boutique, id_Client) VALUES ('CC', '22-03-2023', '17-07-2023', 'Pensées', 80, 1, 4);
+INSERT INTO Commande (statut, date_creation, date_livraison, message, prix, id_Boutique, id_Client) VALUES ('VINV', '22-03-2023', '19-01-2023', 'Bises, Frédéric', 120, 1, 1);
+INSERT INTO Commande (statut, date_creation, date_livraison, message, prix, id_Boutique, id_Client) VALUES ('CL', '07-01-2023', '05-05-2023', 'À l année prochaine', 50, 1, 3);
+INSERT INTO Commande (statut, date_creation, date_livraison, message, prix, id_Boutique, id_Client) VALUES ('CC', '17-04-2023', '09-12-2023', 'De la part de Gaston', 75, 1, 2);
+INSERT INTO Commande (statut, date_creation, date_livraison, message, prix, id_Boutique, id_Client) VALUES('CAL', '01-02-2023', '05-05-2023', 'Pour notre Patric national', 40, 1, 5);
+INSERT INTO Commande (statut, date_creation, date_livraison, message, prix, id_Boutique, id_Client) VALUES ('VINV', '02-07-2023', '07-09-2023', 'Pour Sandrine', 120, 1, 6);
+INSERT INTO Commande (statut, date_creation, date_livraison, message, prix, id_Boutique, id_Client) VALUES ('CL', '16-02-2023', '03-05-2023', 'Sincères attentions, René', 50, 2, 4);
+INSERT INTO Commande (statut, date_creation, date_livraison, message, prix, id_Boutique, id_Client) VALUES ('CC', '22-03-2023', '17-07-2023', 'Pensées', 80, 2, 4);
+INSERT INTO Commande (statut, date_creation, date_livraison, message, prix, id_Boutique, id_Client) VALUES ('VINV', '22-03-2023', '19-01-2023', 'Bises, Marie', 120, 2, 7);
+INSERT INTO Commande (statut, date_creation, date_livraison, message, prix, id_Boutique, id_Client) VALUES ('CL', '07-01-2023', '05-05-2023', 'Bravo !', 50, 2, 8);
+INSERT INTO Commande (statut, date_creation, date_livraison, message, prix, id_Boutique, id_Client) VALUES ('CC', '17-04-2023', '09-12-2023', 'De la part de Jem', 75, 2, 8);
